@@ -13,15 +13,22 @@ const importData = async () => {
   try {
     await Order.deleteMany();
     await Product.deleteMany();
-    const adminUser = await User.findOne({ isAdmin: true }) || await User.findOne({}); 
+    await User.deleteMany();
+
+    // Create admin user first
+    const adminUser = await User.create({
+      name: 'Admin',
+      email: 'admin@velaluxora.com',
+      password: 'admin123456',
+      isAdmin: true,
+    });
 
     const sampleProducts = products.map((product) => {
       return { ...product, user: adminUser._id };
     });
 
     await Product.insertMany(sampleProducts);
-
-    console.log('💎 Client Data Imported Successfully!');
+    console.log('💎 Data Imported Successfully!');
     process.exit();
   } catch (error) {
     console.error(`Error with data import: ${error.message}`);
