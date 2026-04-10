@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import path from 'path';
 import express from 'express';
-import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import Product from './models/productModel.js';
@@ -9,7 +9,6 @@ import userRoutes from './routes/userRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import cookieParser from 'cookie-parser';
-dotenv.config();
 
 connectDB();
 
@@ -25,6 +24,7 @@ app.use('/api/orders', orderRoutes);
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
+
 app.post('/api/products', async (req, res) => {
   try {
     const { name, image, category, description, price, countInStock } = req.body;
@@ -38,12 +38,13 @@ app.post('/api/products', async (req, res) => {
     });
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
-
   } catch (error) {
     res.status(400).json({ message: "Failed to add product. Check your data." });
   }
 });
+
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -21,7 +21,7 @@ export default function PlaceOrderScreen() {
   const totalPrice = (Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice)).toFixed(2);
   const placeOrderHandler = async () => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/orders', {
+      const { data } = await axios.post('/api/orders', {
         orderItems: cartItems,
         shippingAddress,
         paymentMethod,
