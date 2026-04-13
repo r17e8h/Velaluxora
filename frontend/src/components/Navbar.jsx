@@ -214,6 +214,24 @@ export default function Navbar() {
                   </svg>
                 </Link>
               )}
+              {/* THE SECRET ADMIN MENU */}
+              {userInfo && userInfo.isAdmin && (
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
+                  <span style={{ color: '#d4af7a', fontFamily: 'var(--ff-display)', fontSize: '1.2rem' }}> VIP </span>
+    
+                  <Link to="/admin/productlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
+                    Products
+                  </Link>
+    
+                  <Link to="/admin/orderlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
+                    Orders
+                  </Link>
+    
+                  <Link to="/admin/userlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
+                    Users
+                  </Link>
+                </div>
+              )}
 
               {/* CART */}
               <button className="icon-btn" aria-label="Cart" onClick={() => setCartOpen(true)}>

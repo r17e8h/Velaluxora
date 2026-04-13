@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
 import { protect } from '../middleware/authMiddleware.js';
+import { admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 router.post('/', async (req, res) => {
@@ -62,6 +63,14 @@ router.get('/profile', protect, async (req, res) => {
     });
   } else {
     res.status(404).json({ message: 'User not found' });
+  }
+});
+router.get('/', protect, admin, async (req, res) => {
+  try {
+    const orders = await Order.find({}).populate('user', 'id name');
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching orders' });
   }
 });
 

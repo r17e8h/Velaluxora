@@ -8,7 +8,11 @@ import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
 import LoginScreen from "./screens/LoginScreen.jsx";
 import RegisterScreen from './screens/RegisterScreen.jsx';
-import PrivateRoute from './components/PrivateRoute.jsx'; // ← add this
+import PrivateRoute from './components/PrivateRoute.jsx'; 
+import AdminRoute from './components/AdminRoute.jsx';
+import ProductListScreen from './admin/ProductListScreen.jsx';
+import OrderListScreen from './admin/OrderListScreen.jsx';
+import UserListScreen from './admin/UserListScreen.jsx';
 
 export default function App() {
   return (
@@ -21,8 +25,6 @@ export default function App() {
             <Route path="/product/:id" element={<ProductScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
-
-            {/* Protected Routes */}
             <Route path="/shipping" element={
               <PrivateRoute><ShippingScreen /></PrivateRoute>
             } />
@@ -32,7 +34,11 @@ export default function App() {
             <Route path="/placeorder" element={
               <PrivateRoute><PlaceOrderScreen /></PrivateRoute>
             } />
-
+            <Route path="" element={<AdminRoute />}>
+              <Route path="/admin/productlist" element={<ProductListScreen />} />
+              <Route path="/admin/orderlist" element={<OrderListScreen />} />
+              <Route path="/admin/userlist" element={<UserListScreen />} />
+            </Route>
           </Routes>
         </main>
         <Footer />
