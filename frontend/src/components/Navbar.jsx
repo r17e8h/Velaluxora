@@ -54,7 +54,7 @@ export default function Navbar() {
         <div className="navbar__inner">
 
           {/* LEFT — LOGO */}
-          <Link to="/" className="navbar__logo">VÉLA<span>LUXORA</span></Link>
+          <Link to="/" className="navbar__logo">VELA<span>LUXORA</span></Link>
 
           {/* CENTER — SEARCH BAR */}
           <div style={{ flex: 1, maxWidth: '380px', margin: '0 2rem', position: 'relative' }}>
