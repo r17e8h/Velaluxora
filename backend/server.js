@@ -25,24 +25,6 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-app.post('/api/products', async (req, res) => {
-  try {
-    const { name, image, category, description, price, countInStock } = req.body;
-    const product = new Product({
-      name,
-      image,
-      category,
-      description,
-      price,
-      countInStock
-    });
-    const createdProduct = await product.save();
-    res.status(201).json(createdProduct);
-  } catch (error) {
-    res.status(400).json({ message: "Failed to add product. Check your data." });
-  }
-});
-
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 

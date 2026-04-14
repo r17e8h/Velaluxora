@@ -1,21 +1,8 @@
 import express from 'express';
 import Product from '../models/productModel.js';
-import jwt from 'jsonwebtoken';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Middleware to protect routes
-const protect = async (req, res, next) => {
-  let token = req.cookies.jwt;
-  if (!token) return res.status(401).json({ message: 'Not authorized' });
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { _id: decoded.userId, name: decoded.name };
-    next();
-  } catch {
-    res.status(401).json({ message: 'Invalid token' });
-  }
-};
 
 // GET all products (with search)
 router.get('/', async (req, res) => {
@@ -81,6 +68,73 @@ router.post('/:id/reviews', protect, async (req, res) => {
     res.status(201).json({ message: 'Review added' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// UPDATE A PRODUCT (Admin Only)
+router.put('/:id', protect, admin, async (req, res) => {
+  try {
+    const { name, price, description, image, brand, category, countInStock } = req.body;
+    
+    // Find the specific piece of jewelry in the database
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      // Overwrite the old data with the new data from your form
+      product.name = name;
+      product.price = price;
+      product.description = description;
+      product.image = image;
+      product.brand = brand;
+      product.category = category;
+      product.countInStock = countInStock;
+
+      // Save it back to MongoDB
+      const updatedProduct = await product.save();
+      res.json(updatedProduct);
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    console.error("UPDATE ERROR:", error);
+    res.status(500).json({ message: 'Server Error updating product' });
+  }
+});
+// CREATE A SAMPLE PRODUCT (Admin Only)
+router.post('/', protect, admin, async (req, res) => {
+  try {
+    const product = new Product({
+      name: 'New Jewelry Piece',
+      price: 0,
+      user: req.user._id,
+      image: '/images/sample.jpg',
+      brand: 'VelaLuxora',
+      category: 'Necklaces',
+      countInStock: 0,
+      numReviews: 0,
+      description: 'Enter description here...',
+    });
+
+    const createdProduct = await product.save();
+    res.status(201).json(createdProduct);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error: Could not create product template' });
+  }
+});
+
+// DELETE A PRODUCT (Admin Only)
+router.delete('/:id', protect, admin, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      await product.deleteOne(); // Removes it from MongoDB
+      res.json({ message: 'Product removed' });
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error: Could not delete product' });
   }
 });
 

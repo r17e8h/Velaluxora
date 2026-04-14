@@ -20,40 +20,42 @@ export default function UserListScreen() {
     fetchUsers();
   }, []);
 
-  if (loading) return <h2 style={{ textAlign: 'center', marginTop: '2rem' }}>Loading Users...</h2>;
-  if (error) return <h2 style={{ color: 'red', textAlign: 'center' }}>{error}</h2>;
+  if (loading) return <h2 style={{ textAlign: 'center', marginTop: '10rem' }}>Loading Users...</h2>;
+  if (error) return <h2 style={{ color: 'red', textAlign: 'center', marginTop: '10rem' }}>{error}</h2>;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '8rem auto 2rem' }}>
       <h1 style={{ fontFamily: 'var(--ff-display)', color: 'var(--charcoal)', marginBottom: '2rem' }}>User Manager</h1>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #d4af7a' }}>
-            <th style={{ padding: '1rem' }}>ID</th>
-            <th style={{ padding: '1rem' }}>NAME</th>
-            <th style={{ padding: '1rem' }}>EMAIL</th>
-            <th style={{ padding: '1rem' }}>ADMIN</th>
-            <th style={{ padding: '1rem' }}>ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '1rem' }}>{user._id.substring(0, 8)}...</td>
-              <td style={{ padding: '1rem' }}>{user.name}</td>
-              <td style={{ padding: '1rem' }}>{user.email}</td>
-              <td style={{ padding: '1rem' }}>
-                {user.isAdmin ? <span style={{ color: 'green', fontWeight: 'bold' }}>👑 VIP</span> : '❌ No'}
-              </td>
-              <td style={{ padding: '1rem' }}>
-                <button style={{ marginRight: '0.5rem', cursor: 'pointer' }}>Edit</button>
-                <button style={{ color: 'red', cursor: 'pointer' }}>Delete</button>
-              </td>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid #d4af7a', backgroundColor: '#fafafa' }}>
+              <th style={{ padding: '1rem' }}>ID</th>
+              <th style={{ padding: '1rem' }}>NAME</th>
+              <th style={{ padding: '1rem' }}>EMAIL</th>
+              <th style={{ padding: '1rem' }}>ADMIN</th>
+              <th style={{ padding: '1rem' }}>ACTIONS</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '1rem', color: '#666' }}>{user._id.substring(0, 8)}...</td>
+                <td style={{ padding: '1rem', fontWeight: '500' }}>{user.name}</td>
+                <td style={{ padding: '1rem' }}><a href={`mailto:${user.email}`} style={{ color: '#d4af7a', textDecoration: 'none' }}>{user.email}</a></td>
+                <td style={{ padding: '1rem' }}>
+                  {user.isAdmin ? <span style={{ color: 'green', fontWeight: 'bold' }}>👑 VIP</span> : '❌'}
+                </td>
+                <td style={{ padding: '1rem' }}>
+                  <button style={{ marginRight: '0.5rem', padding: '0.25rem 0.75rem', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#fff', borderRadius: '4px' }}>Edit</button>
+                  <button style={{ color: 'white', backgroundColor: '#dc3545', padding: '0.25rem 0.75rem', cursor: 'pointer', border: 'none', borderRadius: '4px' }}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 import ProductListScreen from './admin/ProductListScreen.jsx';
 import OrderListScreen from './admin/OrderListScreen.jsx';
 import UserListScreen from './admin/UserListScreen.jsx';
+import ProductEditScreen from './admin/ProductEditScreen.jsx';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/admin/productlist" element={<ProductListScreen />} />
               <Route path="/admin/orderlist" element={<OrderListScreen />} />
               <Route path="/admin/userlist" element={<UserListScreen />} />
+              <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
             </Route>
           </Routes>
         </main>
