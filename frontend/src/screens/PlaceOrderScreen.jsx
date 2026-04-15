@@ -21,8 +21,12 @@ export default function PlaceOrderScreen() {
   const totalPrice = (Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice)).toFixed(2);
   const placeOrderHandler = async () => {
     try {
+      const formattedOrderItems = cartItems.map((item) => ({
+        ...item,
+        product: item._id || item.product, 
+      }));
       const { data } = await axios.post('/api/orders', {
-        orderItems: cartItems,
+        orderItems: formattedOrderItems, // <-- Sending the newly formatted items
         shippingAddress,
         paymentMethod,
         itemsPrice,
@@ -33,7 +37,7 @@ export default function PlaceOrderScreen() {
       navigate(`/order/${data._id}`);
     } catch (error) {
       console.error("Error creating order:", error);
-      alert("Something went wrong with the database connection!");
+      alert(error.response?.data?.message || "Something went wrong with the database connection!");
     }
   };
 
@@ -105,7 +109,6 @@ export default function PlaceOrderScreen() {
           </button>
         </div>
       </div>
-
     </div>
   );
 }
