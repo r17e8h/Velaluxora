@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrderListScreen() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -50,7 +52,7 @@ export default function OrderListScreen() {
                 <td style={{ padding: '1rem' }}>{order.isPaid ? '✅ Yes' : '❌ No'}</td>
                 <td style={{ padding: '1rem' }}>{order.isDelivered ? '✅ Yes' : '🚚 Pending'}</td>
                 <td style={{ padding: '1rem' }}>
-                  <button style={{ padding: '0.25rem 0.75rem', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#fff', borderRadius: '4px' }}>
+                  <button onClick={() => navigate(`/admin/order/${order._id}`)} style={{ padding: '0.25rem 0.75rem', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#fff', borderRadius: '4px' }}>
                     Details
                   </button>
                 </td>

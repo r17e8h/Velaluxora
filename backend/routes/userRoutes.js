@@ -81,5 +81,55 @@ router.get('/', protect, admin, async (req, res) => {
     res.status(500).json({ message: 'Server Error fetching users' });
   }
 });
+router.delete('/:id', protect, admin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      if (user.isAdmin && req.user._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ message: 'Cannot delete another admin user' });
+      }
+      await user.deleteOne();
+      res.json({ message: 'User removed completely' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+router.get('/:id', protect, admin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+router.put('/:id', protect, admin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+      user.isAdmin = Boolean(req.body.isAdmin);
+
+      const updatedUser = await user.save();
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        isAdmin: updatedUser.isAdmin,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 export default router;

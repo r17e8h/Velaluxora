@@ -15,6 +15,9 @@ import OrderListScreen from './admin/OrderListScreen.jsx';
 import UserListScreen from './admin/UserListScreen.jsx';
 import ProductEditScreen from './admin/ProductEditScreen.jsx';
 import Collections from "./screens/Collections.jsx";
+import UserEditScreen from './admin/UserEditScreen.jsx';
+import OrderScreen from './admin/OrderScreen.jsx';
+import ProfileScreen from './screens/ProfileScreen.jsx';
 
 export default function App() {
   return (
@@ -27,7 +30,9 @@ export default function App() {
             <Route path="/product/:id" element={<ProductScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/collections" element={<Collections />} />
+            <Route path="/order/:id" element={<OrderScreen />} />
             <Route path="/shipping" element={
               <PrivateRoute><ShippingScreen /></PrivateRoute>
             } />
@@ -42,6 +47,8 @@ export default function App() {
               <Route path="/admin/orderlist" element={<OrderListScreen />} />
               <Route path="/admin/userlist" element={<UserListScreen />} />
               <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
+              <Route path="/admin/user/:id/edit" element={<UserEditScreen />} />
+              <Route path="/admin/order/:id" element={<OrderScreen />} />
             </Route>
           </Routes>
         </main>

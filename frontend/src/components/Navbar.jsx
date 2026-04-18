@@ -192,10 +192,10 @@ export default function Navbar() {
               {/* LOGIN / USER */}
               {userInfo ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--gold)',
+                  <Link to="/profile" style={{ fontSize: '0.78rem', color: 'var(--gold)',
                     fontFamily: 'var(--ff-body)', letterSpacing: '0.05em' }}>
                     Hi, {userInfo.name}
-                  </span>
+                  </Link>
                   <button className="icon-btn" onClick={handleLogout} title="Logout">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" strokeWidth="1.5">
