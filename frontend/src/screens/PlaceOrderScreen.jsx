@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useCart } from '../context/useCart.js';
+import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import '../App.css';
 
