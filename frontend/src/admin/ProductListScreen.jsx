@@ -10,7 +10,9 @@ export default function ProductListScreen() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('/api/products');
+        const { data } = await axios.get('/api/products', {
+          withCredentials: true
+        });
         setProducts(data);
         setLoading(false);
       } catch (err) {
@@ -24,32 +26,30 @@ export default function ProductListScreen() {
   if (loading) return <h2 style={{ textAlign: 'center', marginTop: '10rem' }}>Loading Inventory...</h2>;
   if (error) return <h2 style={{ color: 'red', textAlign: 'center', marginTop: '10rem' }}>{error}</h2>;
   const createProductHandler = async () => {
-  if (window.confirm('Create a new product template in the database?')) {
-    try {
-      // 1. Call the backend to make the sample
-      const { data } = await axios.post('/api/products');
-      
-      // 2. Teleport straight to the edit page for this new ID
-      navigate(`/admin/product/${data._id}/edit`);
-    } catch (err) {
-      alert(err.response?.data?.message || err.message);
+    if (window.confirm('Create a new product template in the database?')) {
+      try {
+        const { data } = await axios.post('/api/products', {}, {
+          withCredentials: true 
+        });
+        navigate(`/admin/product/${data._id}/edit`);
+      } catch (err) {
+        alert(err.response?.data?.message || err.message);
+      }
     }
-  }
-};
-const deleteHandler = async (id) => {
-  if (window.confirm('Are you sure you want to permanently delete this piece?')) {
-    try {
-      // 1. Tell the backend to delete it
-      await axios.delete(`/api/products/${id}`);
-      
-      // 2. Update the UI instantly by filtering out the deleted product from our state
-      setProducts(products.filter((p) => p._id !== id));
-      
-    } catch (err) {
-      alert(err.response?.data?.message || err.message);
+  };
+
+  const deleteHandler = async (id) => {
+    if (window.confirm('Are you sure you want to permanently delete this piece?')) {
+      try {
+        await axios.delete(`/api/products/${id}`, {
+          withCredentials: true
+        });
+        setProducts(products.filter((p) => p._id !== id));
+      } catch (err) {
+        alert(err.response?.data?.message || err.message);
+      }
     }
-  }
-};
+  };
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '8rem auto 2rem' }}>

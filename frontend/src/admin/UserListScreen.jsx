@@ -11,7 +11,9 @@ export default function UserListScreen() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await axios.get('/api/users');
+        const { data } = await axios.get('/api/users', {
+          withCredentials: true
+        });
         setUsers(data);
         setLoading(false);
       } catch (err) {
@@ -27,7 +29,9 @@ export default function UserListScreen() {
   const deleteHandler = async (id) => {
     if (window.confirm('Are you absolutely sure you want to delete this user?')) {
       try {
-        await axios.delete(`/api/users/${id}`);
+        await axios.delete(`/api/users/${id}`, {
+          withCredentials: true
+        });
         setUsers(users.filter((u) => u._id !== id)); 
       } catch (err) {
         alert(err.response?.data?.message || err.message);

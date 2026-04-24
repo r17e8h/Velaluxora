@@ -11,7 +11,9 @@ export default function OrderListScreen() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data } = await axios.get('/api/orders');
+        const { data } = await axios.get('/api/orders', {
+          withCredentials: true
+        });
         setOrders(data);
         setLoading(false);
       } catch (err) {
