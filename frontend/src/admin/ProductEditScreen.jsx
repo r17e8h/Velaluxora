@@ -21,7 +21,7 @@ export default function ProductEditScreen() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`/api/products/${productId}`);
+        const { data } = await axios.get(`/api/products/${productId}`, { withCredentials: true });
         setName(data.name);
         setPrice(data.price);
         setImage(data.image);
@@ -43,6 +43,8 @@ export default function ProductEditScreen() {
     try {
       await axios.put(`/api/products/${productId}`, {
         name, price, image, brand, category, countInStock, description,
+      }, {
+        withCredentials: true 
       });
       navigate('/admin/productlist');
     } catch (err) {
@@ -59,11 +61,12 @@ export default function ProductEditScreen() {
     try {
       const { data } = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       });
       setImage(data.image);
       setLoadingUpload(false);
     } catch (err) {
-      alert('Error uploading image');
+      alert(err.response?.data?.message || 'Error uploading image');
       setLoadingUpload(false);
     }
   };

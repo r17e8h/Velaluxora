@@ -15,7 +15,9 @@ export default function UserEditScreen() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data } = await axios.get(`/api/users/${userId}`);
+        const { data } = await axios.get(`/api/users/${userId}`, {
+          withCredentials: true 
+        });
         setName(data.name);
         setEmail(data.email);
         setIsAdmin(data.isAdmin);
@@ -31,7 +33,10 @@ export default function UserEditScreen() {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`/api/users/${userId}`, { name, email, isAdmin });
+      await axios.put(`/api/users/${userId}`, 
+        { name, email, isAdmin }, 
+        { withCredentials: true }
+      );
       navigate('/admin/userlist');
     } catch (err) {
       alert(err.response?.data?.message || err.message);
