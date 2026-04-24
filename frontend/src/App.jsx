@@ -1,7 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// 1. Add these two imports at the top
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
 
 import HomeScreen from "./screens/HomeScreen";
 import ProductScreen from "./screens/ProductScreen";
@@ -25,42 +22,37 @@ import ProfileScreen from './screens/ProfileScreen.jsx';
 
 export default function App() {
   return (
-    // 2. Wrap everything in the Providers
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <div className="app">
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<HomeScreen />} />
-                <Route path="/product/:id" element={<ProductScreen />} />
-                <Route path="/login" element={<LoginScreen />} />
-                <Route path="/register" element={<RegisterScreen />} />
-                <Route path="/profile" element={<ProfileScreen />} />
-                <Route path="/collections" element={<Collections />} />
-                <Route path="/order/:id" element={<OrderScreen />} />
-                
-                {/* Private Routes */}
-                <Route path="/shipping" element={<PrivateRoute><ShippingScreen /></PrivateRoute>} />
-                <Route path="/payment" element={<PrivateRoute><PaymentScreen /></PrivateRoute>} />
-                <Route path="/placeorder" element={<PrivateRoute><PlaceOrderScreen /></PrivateRoute>} />
-                
-                {/* Admin Routes */}
-                <Route path="" element={<AdminRoute />}>
-                  <Route path="/admin/productlist" element={<ProductListScreen />} />
-                  <Route path="/admin/orderlist" element={<OrderListScreen />} />
-                  <Route path="/admin/userlist" element={<UserListScreen />} />
-                  <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
-                  <Route path="/admin/user/:id/edit" element={<UserEditScreen />} />
-                  <Route path="/admin/order/:id" element={<OrderScreen />} />
-                </Route>
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <Router>
+      <div className="app">
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/product/:id" element={<ProductScreen />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="/collections" element={<Collections />} />
+            <Route path="/order/:id" element={<OrderScreen />} />
+            
+            {/* Private Routes */}
+            <Route path="/shipping" element={<PrivateRoute><ShippingScreen /></PrivateRoute>} />
+            <Route path="/payment" element={<PrivateRoute><PaymentScreen /></PrivateRoute>} />
+            <Route path="/placeorder" element={<PrivateRoute><PlaceOrderScreen /></PrivateRoute>} />
+            
+            {/* Admin Routes */}
+            <Route path="" element={<AdminRoute />}>
+              <Route path="/admin/productlist" element={<ProductListScreen />} />
+              <Route path="/admin/orderlist" element={<OrderListScreen />} />
+              <Route path="/admin/userlist" element={<UserListScreen />} />
+              <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
+              <Route path="/admin/user/:id/edit" element={<UserEditScreen />} />
+              <Route path="/admin/order/:id" element={<OrderScreen />} />
+            </Route>
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
