@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 dotenv.config();
 import path from 'path';
 import express from 'express';
@@ -14,12 +14,9 @@ import cookieParser from 'cookie-parser';
 connectDB();
 
 const app = express();
+app.options('*', cors()); 
 app.use(cors({
-  origin: [
-    'https://velaluxora.vercel.app',
-    'http://localhost:5173',        
-    'http://localhost:3000'          
-  ],
+  origin: 'https://velaluxora.vercel.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
