@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import axios from 'axios';
 import { useSearchParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { Link } from "react-router-dom";
 
 // ── CONFIG: change this one line when backend is deployed ──
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -53,7 +55,8 @@ function ProductCard({ product }) {
   return (
     <div className="product-card">
       <div className="product-card__img-wrap">
-        <img src={imgSrc} alt={product.name} loading="lazy" />
+        <Link to={`/product/${product._id}`}><img src={imgSrc} alt={product.name} loading="lazy" />
+        </Link>
         {product.countInStock === 0 && (
           <span className="product-card__tag product-card__tag--sold">Sold Out</span>
         )}
@@ -77,7 +80,9 @@ function ProductCard({ product }) {
 
       <div className="product-card__body">
         <p className="product-card__brand">{product.brand}</p>
-        <h4>{product.name}</h4>
+        <Link to={`/product/${product._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h4>{product.name}</h4>
+        </Link>
         <Stars rating={product.rating} />
         <div className="product-card__footer">
           <span className="product-card__price">
@@ -115,12 +120,10 @@ export default function CollectionsPage() {
       setError(null);
       try {
         const query = search ? `?search=${encodeURIComponent(search)}` : "";
-        const res = await fetch(`${API_BASE}/api/products${query}`);
-        if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
-        const data = await res.json();
+        const { data } = await axios.get(`/api/products${query}`);
         setProducts(data);
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }

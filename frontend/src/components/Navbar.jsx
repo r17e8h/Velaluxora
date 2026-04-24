@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React,{ useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Cart from "./Cart";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -50,14 +50,13 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
+      <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''} ${menuOpen ? 'menu-open' : ''}`}>
         <div className="navbar__inner">
 
           {/* LEFT — LOGO */}
           <Link to="/" className="navbar__logo">VELA<span>LUXORA</span></Link>
 
-          {/* CENTER — SEARCH BAR */}
-          <div style={{ flex: 1, maxWidth: '380px', margin: '0 2rem', position: 'relative' }}>
+          <div className="navbar__search" style={{ flex: 1, maxWidth: '380px', margin: '0 2rem', position: 'relative' }}>
             <form onSubmit={(e) => e.preventDefault()} style={{
               width: '100%',
               display: 'flex',
@@ -177,8 +176,54 @@ export default function Navbar() {
           {/* RIGHT — NAV LINKS + ICONS */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
 
-            {/* NAV LINKS */}
+            {/* NAV LINKS & MOBILE SEARCH */}
             <ul className={`navbar__links ${menuOpen ? "navbar__links--open" : ""}`}>
+              <li className="mobile-search" style={{ width: '100%', padding: '0 1rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
+                <form onSubmit={(e) => e.preventDefault()} style={{
+                  display: 'flex', alignItems: 'center', border: '1px solid var(--charcoal)',
+                  padding: '0.6rem 1rem', gap: '0.5rem', background: 'var(--white)'
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search jewellery..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      handleSearch(e.target.value);
+                    }}
+                    style={{ border: 'none', outline: 'none', width: '100%', background: 'transparent', fontSize: '16px' }}
+                  />
+                  {searchQuery && (
+                    <button type="button" onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                      style={{ background: 'none', border: 'none', fontSize: '1.2rem', color: 'var(--text-muted)' }}>×</button>
+                  )}
+                </form>
+
+                {/* MOBILE DROPDOWN RESULTS */}
+                {searchResults.length > 0 && (
+                  <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderTop: 'none', maxHeight: '250px', overflowY: 'auto' }}>
+                    {searchResults.map((product) => (
+                      <Link
+                        to={`/product/${product._id}`}
+                        key={product._id}
+                        onClick={() => { setSearchQuery(""); setSearchResults([]); setMenuOpen(false); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', borderBottom: '1px solid var(--border)', textDecoration: 'none', color: 'var(--text)' }}
+                      >
+                        <img src={product.image} alt={product.name} style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
+                        <div>
+                          <p style={{ fontSize: '0.85rem', margin: 0 }}>{product.name}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--gold-dark)', margin: 0 }}>₹{product.price}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </li>
+
+              {/* REGULAR NAV LINKS */}
               {NAV_LINKS.map((l) => (
                 <li key={l.label}>
                   <Link to={l.path} onClick={() => setMenuOpen(false)}>{l.label}</Link>
@@ -193,7 +238,7 @@ export default function Navbar() {
               {userInfo ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Link to="/profile" style={{ fontSize: '0.78rem', color: 'var(--gold)',
-                    fontFamily: 'var(--ff-body)', letterSpacing: '0.05em' }}>
+                    fontFamily: 'var(--ff-body)', letterSpacing: '0.05em' }} className="hide-on-mobile">
                     Hi, {userInfo.name}
                   </Link>
                   <button className="icon-btn" onClick={handleLogout} title="Logout">
@@ -216,7 +261,7 @@ export default function Navbar() {
               )}
               {/* THE SECRET ADMIN MENU */}
               {userInfo && userInfo.isAdmin && (
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
+                <div className="navbar__admin" style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
                   <span style={{ color: '#d4af7a', fontFamily: 'var(--ff-display)', fontSize: '1.2rem' }}> VIP </span>
     
                   <Link to="/admin/productlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
