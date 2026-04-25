@@ -50,6 +50,14 @@ export default function Navbar() {
 
   return (
     <>
+      <style>{`
+        @media (min-width: 769px) {
+          .mobile-admin-link {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''} ${menuOpen ? 'menu-open' : ''}`}>
         <div className="navbar__inner">
 
@@ -231,7 +239,7 @@ export default function Navbar() {
               ))}
               {userInfo && userInfo.isAdmin && (
                 <>
-                  <li style={{ 
+                  <li className="mobile-admin-link" style={{ 
                     marginTop: '1rem', 
                     paddingTop: '1rem', 
                     borderTop: '1px solid var(--border)', 
@@ -242,9 +250,9 @@ export default function Navbar() {
                   }}>
                     VIP ADMIN
                   </li>
-                  <li><Link to="/admin/productlist" onClick={() => setMenuOpen(false)}>Manage Products</Link></li>
-                  <li><Link to="/admin/orderlist" onClick={() => setMenuOpen(false)}>Manage Orders</Link></li>
-                  <li><Link to="/admin/userlist" onClick={() => setMenuOpen(false)}>Manage Users</Link></li>
+                  <li className="mobile-admin-link"><Link to="/admin/productlist" onClick={() => setMenuOpen(false)}>Manage Products</Link></li>
+                  <li className="mobile-admin-link"><Link to="/admin/orderlist" onClick={() => setMenuOpen(false)}>Manage Orders</Link></li>
+                  <li className="mobile-admin-link"><Link to="/admin/userlist" onClick={() => setMenuOpen(false)}>Manage Users</Link></li>
                 </>
               )}
             </ul>
