@@ -229,6 +229,24 @@ export default function Navbar() {
                   <Link to={l.path} onClick={() => setMenuOpen(false)}>{l.label}</Link>
                 </li>
               ))}
+              {userInfo && userInfo.isAdmin && (
+                <>
+                  <li style={{ 
+                    marginTop: '1rem', 
+                    paddingTop: '1rem', 
+                    borderTop: '1px solid var(--border)', 
+                    color: 'var(--gold-dark)', 
+                    fontFamily: 'var(--ff-display)',
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.05em'
+                  }}>
+                    VIP ADMIN
+                  </li>
+                  <li><Link to="/admin/productlist" onClick={() => setMenuOpen(false)}>Manage Products</Link></li>
+                  <li><Link to="/admin/orderlist" onClick={() => setMenuOpen(false)}>Manage Orders</Link></li>
+                  <li><Link to="/admin/userlist" onClick={() => setMenuOpen(false)}>Manage Users</Link></li>
+                </>
+              )}
             </ul>
 
             {/* ICONS */}
@@ -259,9 +277,8 @@ export default function Navbar() {
                   </svg>
                 </Link>
               )}
-              {/* THE SECRET ADMIN MENU */}
               {userInfo && userInfo.isAdmin && (
-                <div className="navbar__admin" style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
+                <div className="navbar__admin hide-on-mobile" style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
                   <span style={{ color: '#d4af7a', fontFamily: 'var(--ff-display)', fontSize: '1.2rem' }}> VIP </span>
     
                   <Link to="/admin/productlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
