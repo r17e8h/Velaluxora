@@ -42,73 +42,80 @@ export default function PlaceOrderScreen() {
   };
 
   return (
-    <div style={{ padding: '100px 5%', minHeight: '80vh', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '3rem' }}>
-      <div>
-        <p className="section__eyebrow" style={{ color: '#d4af7a', marginBottom: '1rem' }}>Step 3 of 3</p>
-        <h1 style={{ fontFamily: 'var(--ff-display)', fontSize: '2.5rem', color: 'var(--charcoal)', marginBottom: '2rem' }}>Review Order</h1>
+    <div className="checkout-screen" style={{ background: 'var(--cream)', minHeight: '100vh' }}>
+      <div className="checkout-screen__main">
+        <p className="section__eyebrow" style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Step 3 of 3</p>
+        <h1 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(2rem, 4vw, 3rem)', color: 'var(--charcoal)', marginBottom: '2rem' }}>
+          Review Order
+        </h1>
         <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Shipping To:</h2>
-          <p style={{ color: '#555', lineHeight: '1.6' }}>
+          <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '1.8rem', marginBottom: '1rem', color: 'var(--charcoal)' }}>Shipping To:</h2>
+          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '0.95rem' }}>
             {shippingAddress.address}, {shippingAddress.city} {shippingAddress.postalCode}, {shippingAddress.country}
           </p>
         </div>
         <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Payment Method:</h2>
-          <p style={{ color: '#555' }}>{paymentMethod}</p>
+          <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '1.8rem', marginBottom: '1rem', color: 'var(--charcoal)' }}>Payment Method:</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{paymentMethod}</p>
         </div>
         <div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Order Items:</h2>
+          <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--charcoal)' }}>Order Items:</h2>
           {cartItems.length === 0 ? (
-            <p>Your cart is empty.</p>
+            <p style={{ color: 'var(--text-muted)' }}>Your cart is empty.</p>
           ) : (
-            cartItems.map((item, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                <img src={item.image} alt={item.name} style={{ width: '60px', borderRadius: '4px' }} />
-                <div style={{ flex: 1 }}>
-                  <Link to={`/product/${item._id}`} style={{ textDecoration: 'none', color: 'var(--charcoal)', fontWeight: 'bold' }}>{item.name}</Link>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {cartItems.map((item, index) => (
+                <div key={index} className="checkout-item">
+                  <img src={item.image} alt={item.name} />
+                  <div className="checkout-item__details">
+                    <Link to={`/product/${item._id}`} style={{ textDecoration: 'none', color: 'var(--charcoal)', fontWeight: '500', fontFamily: 'var(--ff-body)', fontSize: '1rem' }}>
+                      {item.name}
+                    </Link>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', letterSpacing: '0.05em' }}>
+                      1 x ₹{item.price?.toLocaleString('en-IN')} = <strong style={{ color: 'var(--charcoal)', fontWeight: '600' }}>₹{item.price?.toLocaleString('en-IN')}</strong>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  1 x ₹{item.price} = <strong>₹{item.price}</strong>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </div>
-      <div>
-        <div style={{ border: '1px solid var(--border)', padding: '2rem', borderRadius: '8px', position: 'sticky', top: '100px' }}>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>Order Summary</h2>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <span>Items:</span>
-            <span>₹{itemsPrice}</span>
-          </div>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <span>Shipping:</span>
-            <span>₹{shippingPrice}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <span>Tax (18% GST):</span>
-            <span>₹{taxPrice}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', fontSize: '1.2rem', fontWeight: 'bold' }}>
-            <span>Total:</span>
-            <span style={{ color: '#d4af7a' }}>₹{totalPrice}</span>
-          </div>
-
-          <button 
-            className="btn btn--primary" 
-            style={{ width: '100%', marginTop: '2rem', padding: '15px' }}
-            disabled={cartItems.length === 0}
-            onClick={placeOrderHandler}
-          >
-            PLACE ORDER
-          </button>
+      <div className="checkout-screen__summary">
+        <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '1.8rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', color: 'var(--charcoal)' }}>
+          Order Summary
+        </h2>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text)', fontSize: '0.95rem' }}>
+          <span>Items:</span>
+          <span>₹{itemsPrice?.toLocaleString('en-IN')}</span>
         </div>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text)', fontSize: '0.95rem' }}>
+          <span>Shipping:</span>
+          <span>₹{shippingPrice === 0 ? '0.00' : shippingPrice?.toLocaleString('en-IN')}</span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', color: 'var(--text)', fontSize: '0.95rem' }}>
+          <span>Tax (18% GST):</span>
+          <span>₹{taxPrice?.toLocaleString('en-IN')}</span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', fontSize: '1.3rem', fontWeight: '500', fontFamily: 'var(--ff-body)' }}>
+          <span style={{ color: 'var(--charcoal)' }}>Total:</span>
+          <span style={{ color: 'var(--gold-dark)' }}>₹{totalPrice?.toLocaleString('en-IN')}</span>
+        </div>
+
+        <button 
+          className="btn btn--primary" 
+          style={{ width: '100%', marginTop: '2rem', padding: '1rem', fontSize: '0.8rem', letterSpacing: '0.2em' }}
+          disabled={cartItems.length === 0}
+          onClick={placeOrderHandler}
+        >
+          PLACE ORDER
+        </button>
       </div>
+      
     </div>
   );
 }

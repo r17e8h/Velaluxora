@@ -4,6 +4,8 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext.jsx';
 import axios from "axios";
 import "../App.css";
+import { useWishlist } from '../context/WishlistContext';
+import ProductCard from '../components/ProductCard';
 
 const StarRating = ({ value, onChange, interactive = false }) => {
   const [hovered, setHovered] = useState(0);
@@ -45,6 +47,7 @@ export default function ProductScreen() {
   const [submitting, setSubmitting] = useState(false);
 
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
@@ -73,6 +76,11 @@ export default function ProductScreen() {
     for (let i = 0; i < qty; i++) addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    for (let i = 0; i < qty; i++) addToCart(product, false); // false = Silent mode! No popup.
+    navigate('/shipping');
   };
 
   const submitReview = async (e) => {
@@ -123,10 +131,10 @@ export default function ProductScreen() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 5% 4rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }}>
+      <div className="product-screen">
 
         {/* LEFT — IMAGE */}
-        <div>
+        <div className="product-screen__image">
           <div style={{ position: 'relative', overflow: 'hidden', background: '#f5f0ea', aspectRatio: '1/1' }}>
             <img src={product.image} alt={product.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s ease' }}
@@ -148,7 +156,7 @@ export default function ProductScreen() {
         </div>
 
         {/* RIGHT — DETAILS */}
-        <div style={{ paddingTop: '1rem' }}>
+        <div className="product-screen__details">
           <p style={{ fontSize: '0.72rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1rem' }}>{product.category}</p>
           <h1 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: '300', color: 'var(--charcoal)', lineHeight: '1.15', marginBottom: '1rem' }}>{product.name}</h1>
 
@@ -198,15 +206,33 @@ export default function ProductScreen() {
           )}
 
           {/* BUTTONS */}
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', height: '3.2rem' }}>
             <button className="btn btn--primary" onClick={handleAddToCart} disabled={product.countInStock === 0}
-              style={{ flex: 1, padding: '1rem', fontSize: '0.75rem', letterSpacing: '0.2em', background: added ? 'var(--gold-dark)' : 'var(--gold)' }}>
-              {added ? '✦ ADDED TO CART' : 'ADD TO CART'}
+              style={{ flex: 1, padding: '0', fontSize: '0.75rem', letterSpacing: '0.15em', background: added ? 'var(--gold-dark)' : 'var(--gold)', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {added ? '✦ ADDED' : 'ADD TO CART'}
             </button>
-            <button className="btn btn--ghost" onClick={() => { handleAddToCart(); navigate('/shipping'); }} disabled={product.countInStock === 0}
-              style={{ flex: 1, padding: '1rem', fontSize: '0.75rem', letterSpacing: '0.2em' }}>
+            <button className="btn btn--ghost" onClick={handleBuyNow} disabled={product.countInStock === 0}style={{ flex: 1, padding: '0', fontSize: '0.75rem', letterSpacing: '0.15em', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               BUY NOW
             </button>
+            {/* WISHLIST HEART BUTTON*/}
+            <button 
+              className={`wishlist-btn ${isInWishlist(product._id) ? 'active' : ''}`}
+              onClick={() => toggleWishlist(product)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '3.2rem', height: '100%', background: 'transparent', 
+                border: '1px solid var(--charcoal)', cursor: 'pointer',
+                color: isInWishlist(product._id) ? '#f44336' : 'var(--charcoal)',
+                transition: 'var(--transition)', flexShrink: 0
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" 
+                   fill={isInWishlist(product._id) ? "#f44336" : "none"} 
+                   stroke="currentColor" strokeWidth="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+
           </div>
 
           {/* PRODUCT DETAILS */}
@@ -234,11 +260,10 @@ export default function ProductScreen() {
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
           <p style={{ fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.8rem' }}>Customer Feedback</p>
           <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: '300', color: 'var(--charcoal)', marginBottom: '3rem' }}>Reviews & Ratings</h2>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4rem' }}>
 
             {/* LEFT — EXISTING REVIEWS */}
-            <div>
+            <div style={{ flex: '1 1 400px' }}>
               {product.reviews && product.reviews.length === 0 ? (
                 <div style={{ padding: '3rem', textAlign: 'center', border: '1px solid var(--border)', background: 'white' }}>
                   <div style={{ fontSize: '2rem', color: 'var(--gold)', marginBottom: '1rem' }}>✦</div>
@@ -266,7 +291,7 @@ export default function ProductScreen() {
             </div>
 
             {/* RIGHT — WRITE A REVIEW */}
-            <div>
+            <div style={{ flex: '1 1 400px' }}>
               <div style={{ padding: '2rem', background: 'white', border: '1px solid var(--border)' }}>
                 <h3 style={{ fontFamily: 'var(--ff-display)', fontSize: '1.4rem', fontWeight: '300', color: 'var(--charcoal)', marginBottom: '1.5rem' }}>Write a Review</h3>
 
@@ -321,27 +346,14 @@ export default function ProductScreen() {
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
             <p style={{ fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.8rem' }}>You May Also Like</p>
             <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: '300', color: 'var(--charcoal)', marginBottom: '3rem' }}>Related Pieces</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem' }}>
+            <div className="product-grid">
               {relatedProducts.map((p) => (
-                <div key={p._id} className="product-card" onClick={() => navigate(`/product/${p._id}`)} style={{ cursor: 'pointer' }}>
-                  <div className="product-card__img-wrap">
-                    <img src={p.image} alt={p.name} style={{ height: '100%' }} />
-                    <span className="product-card__tag">Related</span>
-                  </div>
-                  <div className="product-card__body" style={{ marginTop: '1rem' }}>
-                    <h4 style={{ fontFamily: 'var(--ff-display)', fontSize: '1rem', fontWeight: '400', marginBottom: '0.5rem' }}>{p.name}</h4>
-                    <div className="product-card__footer">
-                      <span className="product-card__price">₹{p.price?.toLocaleString('en-IN')}</span>
-                      <button className="btn btn--small" onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Add to Cart</button>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

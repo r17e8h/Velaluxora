@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import { useSearchParams } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { Link } from "react-router-dom";
-
-// ── CONFIG: change this one line when backend is deployed ──
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import ProductCard from '../components/ProductCard';
+import "../App.css";
 
 const CATEGORIES = ["All", "Rings", "Necklaces", "Bracelets", "Earrings"];
 
@@ -18,86 +15,10 @@ const SORT_OPTIONS = [
 
 function SkeletonCard() {
   return (
-    <div className="product-card skeleton-card">
-      <div className="product-card__img-wrap skeleton-box" />
-      <div className="skeleton-line" style={{ width: "70%", marginTop: "1rem" }} />
-      <div className="skeleton-line" style={{ width: "40%", marginTop: "0.5rem" }} />
-    </div>
-  );
-}
-
-function Stars({ rating }) {
-  return (
-    <div className="stars">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span key={s} className={s <= Math.round(rating) ? "star star--filled" : "star"}>★</span>
-      ))}
-    </div>
-  );
-}
-
-function ProductCard({ product }) {
-  const [wished, setWished] = useState(false);
-  const [added, setAdded] = useState(false);
-  const { addToCart } = useCart();
-
-  const handleAddToCart = () => {
-    addToCart(product);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
-  };
-
-  const imgSrc =
-    product.image?.startsWith("http")
-      ? product.image
-      : `${API_BASE}${product.image}`;
-
-  return (
-    <div className="product-card">
-      <div className="product-card__img-wrap">
-        <Link to={`/product/${product._id}`}><img src={imgSrc} alt={product.name} loading="lazy" />
-        </Link>
-        {product.countInStock === 0 && (
-          <span className="product-card__tag product-card__tag--sold">Sold Out</span>
-        )}
-        {product.countInStock > 0 && product.countInStock <= 3 && (
-          <span className="product-card__tag product-card__tag--low">
-            Only {product.countInStock} left
-          </span>
-        )}
-        <button
-          className={`product-card__wishlist ${wished ? "product-card__wishlist--active" : ""}`}
-          onClick={() => setWished((w) => !w)}
-          aria-label="Wishlist"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24"
-            fill={wished ? "currentColor" : "none"}
-            stroke="currentColor" strokeWidth="1.5">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="product-card__body">
-        <p className="product-card__brand">{product.brand}</p>
-        <Link to={`/product/${product._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h4>{product.name}</h4>
-        </Link>
-        <Stars rating={product.rating} />
-        <div className="product-card__footer">
-          <span className="product-card__price">
-            ₹{product.price?.toLocaleString("en-IN")}
-          </span>
-          <button
-            className="btn btn--small"
-            disabled={product.countInStock === 0}
-            onClick={handleAddToCart}
-            style={{ background: added ? "var(--gold)" : undefined }}
-          >
-            {product.countInStock === 0 ? "Sold Out" : added ? "Added ✓" : "Add to Cart"}
-          </button>
-        </div>
-      </div>
+    <div className="product-card skeleton-card" style={{ padding: '1rem', border: '1px solid var(--border)', background: 'white' }}>
+      <div className="product-card__img-wrap skeleton-box" style={{ background: '#eee', aspectRatio: '1/1', marginBottom: '1rem' }} />
+      <div className="skeleton-line" style={{ width: "70%", height: "14px", background: "#eee", marginBottom: "0.5rem" }} />
+      <div className="skeleton-line" style={{ width: "40%", height: "14px", background: "#eee" }} />
     </div>
   );
 }
@@ -151,7 +72,6 @@ export default function CollectionsPage() {
 
   return (
     <div className="collections-page">
-
       <div className="collections-hero">
         <div className="collections-hero__bg" />
         <div className="collections-hero__content">
@@ -199,22 +119,22 @@ export default function CollectionsPage() {
           </select>
         </div>
       </div>
-
       <div className="collections-grid-wrap">
         {error ? (
           <div className="collections-error">
             <p>⚠ Could not reach the server.</p>
             <p className="collections-error__detail">{error}</p>
-            <p>Make sure your backend is running on <code>http://localhost:5000</code></p>
           </div>
         ) : (
-          <div className="collections-grid">
+          <div className="product-grid" style={{ padding: '2rem 5%' }}>
             {loading
               ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
               : sorted.length === 0
               ? (
-                <div className="collections-empty">
-                  <p>No pieces found{search ? ` for "${search}"` : ""}.</p>
+                <div className="collections-empty" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem 0' }}>
+                  <p style={{ fontFamily: 'var(--ff-display)', fontSize: '1.5rem', marginBottom: '1rem' }}>
+                    No pieces found{search ? ` for "${search}"` : ""}.
+                  </p>
                   {search && (
                     <button className="btn btn--ghost"
                       onClick={() => { setSearch(""); setSearchInput(""); }}>
