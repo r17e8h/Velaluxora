@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../App.css";
 import { useCart } from '../context/CartContext';
+import ProductCard from '../components/ProductCard';
 
 const CATEGORIES = [
   {
@@ -55,166 +56,92 @@ export default function HomeScreen() {
 
       {/* ── HERO ── */}
       <section style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        position: 'relative',
         minHeight: '100vh',
-        marginTop: '70px',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        marginTop: '0'
       }}>
-
-        {/* LEFT — IMAGE */}
-        <div style={{ position: 'relative', overflow: 'hidden' }}>
-          <img
-            src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80"
-            alt="Luxury Jewellery"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transition: 'transform 8s ease',
-              transform: 'scale(1.05)',
-            }}
-            onLoad={e => e.target.style.transform = 'scale(1)'}
-          />
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to right, transparent 60%, var(--cream) 100%)',
-          }} />
-          <div style={{
-            position: 'absolute',
-            bottom: '3rem',
-            left: '3rem',
-            background: 'rgba(26,26,24,0.85)',
-            backdropFilter: 'blur(12px)',
-            padding: '1.2rem 1.8rem',
-            color: 'white',
-            border: '1px solid rgba(201,169,110,0.3)',
-          }}>
-            <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.3rem' }}>
-              New Collection
-            </p>
-            <p style={{ fontFamily: 'var(--ff-display)', fontSize: '1.1rem', fontWeight: '300' }}>
-              2026 · Handcrafted in India
-            </p>
-          </div>
-        </div>
-
-        {/* RIGHT — CONTENT */}
         <div style={{
-          background: 'var(--cream)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: 'clamp(3rem, 6vw, 7rem)',
-          position: 'relative',
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '3rem',
-            right: '3rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.65rem',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-          }}>
-            <div style={{ width: '30px', height: '1px', background: 'var(--gold)' }} />
-            Est. 2024
-          </div>
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url("https://images.unsplash.com/photo-1630019852942-f89202989a59?w=1600&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: 1,
+          animation: 'zoomOut 10s ease infinite alternate'
+        }} />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(26,24,20,0.3) 0%, rgba(26,24,20,0.8) 100%)',
+          zIndex: 2
+        }} />
 
+        <div style={{
+          position: 'relative',
+          zIndex: 3,
+          textAlign: 'center',
+          color: '#fff',
+          padding: '0 5%',
+          maxWidth: '800px',
+          marginTop: '70px'
+        }}> 
           <p style={{
-            fontSize: '0.7rem',
-            letterSpacing: '0.35em',
+            fontSize: '0.75rem',
+            letterSpacing: '0.4em',
             textTransform: 'uppercase',
             color: 'var(--gold)',
             marginBottom: '1.5rem',
+            textShadow: '0 2px 4px rgba(0,0,0,0.5)'
           }}>
             New Collection 2026
           </p>
-
           <h1 style={{
             fontFamily: 'var(--ff-display)',
-            fontSize: 'clamp(3rem, 5vw, 5.5rem)',
+            fontSize: 'clamp(3.5rem, 8vw, 6.5rem)', /* Scales perfectly from phones to 4k monitors */
             fontWeight: '300',
             lineHeight: '1.05',
-            color: 'var(--charcoal)',
-            marginBottom: '1rem',
+            marginBottom: '1.5rem',
+            textShadow: '0 4px 20px rgba(0,0,0,0.3)'
           }}>
             Wear What<br />
-            <span style={{ fontStyle: 'italic' }}>Whispers</span> Gold
+            <span style={{ fontStyle: 'italic', color: 'var(--cream)' }}>Whispers</span> Gold
           </h1>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            marginBottom: '1.5rem',
-          }}>
-            <div style={{ width: '50px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>✦</span>
-          </div>
-
           <p style={{
-            fontSize: '0.95rem',
-            color: 'var(--text-muted)',
-            maxWidth: '380px',
-            marginBottom: '3rem',
-            lineHeight: '1.9',
+            fontFamily: 'var(--ff-body)',
+            fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+            color: 'rgba(255,255,255,0.85)',
+            fontWeight: '300',
+            maxWidth: '480px',
+            margin: '0 auto 3rem auto',
+            lineHeight: '1.8'
           }}>
-            Handcrafted luxury jewellery for the woman who needs no introduction. Each piece tells a story worth wearing.
+            Handcrafted luxury jewelry for the woman who needs no introduction. Each piece tells a story worth wearing.
           </p>
-
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '4rem' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '1rem', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap' 
+          }}>
             <button
               className="btn btn--primary"
               onClick={() => document.getElementById('featured').scrollIntoView({ behavior: 'smooth' })}
-              style={{ padding: '1rem 2.5rem', fontSize: '0.72rem', letterSpacing: '0.2em' }}
+              style={{ 
+                padding: '1.2rem 3rem', 
+                fontSize: '0.75rem', 
+                letterSpacing: '0.2em',
+                background: 'var(--gold)',
+                color: '#fff',
+                border: 'none'
+              }}
             >
-              Shop Now
+              SHOP THE COLLECTION
             </button>
-            <button
-              className="btn btn--ghost"
-              onClick={() => document.getElementById('collections').scrollIntoView({ behavior: 'smooth' })}
-              style={{ padding: '1rem 2.5rem', fontSize: '0.72rem', letterSpacing: '0.2em' }}
-            >
-              Explore Collections
-            </button>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            gap: '2.5rem',
-            paddingTop: '2rem',
-            borderTop: '1px solid var(--border)',
-          }}>
-            {[
-              { number: '500+', label: 'Unique Pieces' },
-              { number: '10K+', label: 'Happy Customers' },
-              { number: '100%', label: 'Hallmark Certified' },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p style={{
-                  fontFamily: 'var(--ff-display)',
-                  fontSize: '1.8rem',
-                  fontWeight: '300',
-                  color: 'var(--charcoal)',
-                  lineHeight: '1',
-                  marginBottom: '0.3rem',
-                }}>
-                  {stat.number}
-                </p>
-                <p style={{
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-muted)',
-                }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -281,34 +208,7 @@ export default function HomeScreen() {
             </div>
           ) : (
             products.map((p) => (
-              <div
-                className="product-card"
-                key={p._id}
-                onClick={() => navigate(`/product/${p._id}`)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="product-card__img-wrap">
-                  <img src={p.image} alt={p.name} />
-                  <span className="product-card__tag">New</span>
-                  <button className="product-card__wishlist" aria-label="Wishlist">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                  </button>
-                </div>
-                <div className="product-card__body">
-                  <h4>{p.name}</h4>
-                  <div className="product-card__footer">
-                    <span className="product-card__price">₹{p.price?.toLocaleString('en-IN')}</span>
-                    <button
-                      className="btn btn--small"
-                      onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                    >
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard key={p._id} product={p} />
             ))
           )}
         </div>

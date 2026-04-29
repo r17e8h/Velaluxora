@@ -19,11 +19,37 @@ import Collections from "./screens/Collections.jsx";
 import UserEditScreen from './admin/UserEditScreen.jsx';
 import OrderScreen from './admin/OrderScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
+import Wishlist from "./screens/WishlistScreen.jsx";
+import { Toaster } from 'react-hot-toast';
+import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <div className="app">
+        <Toaster 
+          position="bottom-center"
+          toastOptions={{
+            style: {
+              background: '#ffffff',
+              color: '#1a1a18',
+              border: '1px solid #e8e2d9',
+              fontFamily: "'Jost', sans-serif",
+              fontSize: '0.85rem',
+              letterSpacing: '0.05em',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+              padding: '12px 20px',
+              borderRadius: '50px',
+            },
+            success: {
+              iconTheme: {
+                primary: '#c9a96e',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
         <Navbar />
         <main>
           <Routes>
@@ -34,6 +60,7 @@ export default function App() {
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/order/:id" element={<OrderScreen />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             
             {/* Private Routes */}
             <Route path="/shipping" element={<PrivateRoute><ShippingScreen /></PrivateRoute>} />

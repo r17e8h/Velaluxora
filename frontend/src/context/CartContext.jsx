@@ -1,14 +1,41 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
-// 1. Create the Context directly here (REPLACES the old import)
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-  const [shippingAddress, setShippingAddress] = useState({});
-  const [paymentMethod, setPaymentMethod] = useState('Stripe');
+  const [cartItems, setCartItems] = useState(() => {
+    const saved = localStorage.getItem('cartItems');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [shippingAddress, setShippingAddress] = useState(() => {
+    const saved = localStorage.getItem('shippingAddress');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [paymentMethod, setPaymentMethod] = useState(() => {
+    const saved = localStorage.getItem('paymentMethod');
+    return saved ? JSON.parse(saved) : 'Stripe';
+  });
 
-  const addToCart = (product) => {
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('shippingAddress', JSON.stringify(shippingAddress));
+  }, [shippingAddress]);
+
+  useEffect(() => {
+    localStorage.setItem('paymentMethod', JSON.stringify(paymentMethod));
+  }, [paymentMethod]);
+  const addToCart = (product, showToast = true) => {
+    if (showToast) {
+      toast.success('Added to your shopping bag!', {
+        icon: '🛍️',
+        duration: 3000,
+      });
+    }
+
     setCartItems((prevItems) => {
       const itemExists = prevItems.find((item) => item._id === product._id);
       if (itemExists) {
@@ -40,6 +67,10 @@ export const CartProvider = ({ children }) => {
   const savePaymentMethod = (method) => {
     setPaymentMethod(method);
   };
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+  };
 
   return (
     <CartContext.Provider 
@@ -51,7 +82,8 @@ export const CartProvider = ({ children }) => {
         shippingAddress, 
         saveShippingAddress, 
         paymentMethod,
-        savePaymentMethod
+        savePaymentMethod,
+        clearCart
       }}
     >
       {children}
@@ -59,7 +91,6 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-// 2. Export the hook
 export const useCart = () => {
   return useContext(CartContext);
 };
