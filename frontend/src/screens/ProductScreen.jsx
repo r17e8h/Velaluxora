@@ -145,8 +145,11 @@ export default function ProductScreen() {
               New Arrival
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginTop: '1.5rem' }}>
-            {[{ icon: '✦', label: 'Hallmark Certified' }, { icon: '◈', label: 'Free Shipping' }, { icon: '↺', label: '30-Day Returns' }].map((b) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginTop: '1.5rem' }}>
+            {[
+              { icon: '◈', label: 'Free Shipping' },
+              { icon: '↺', label: '30-Day Returns' }
+            ].map((b) => (
               <div key={b.label} style={{ textAlign: 'center', padding: '1rem', border: '1px solid var(--border)', background: 'white' }}>
                 <div style={{ color: 'var(--gold)', fontSize: '1.1rem', marginBottom: '0.4rem' }}>{b.icon}</div>
                 <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{b.label}</p>

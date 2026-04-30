@@ -219,7 +219,7 @@ export default function HomeScreen() {
         <div className="banner__content">
           <p className="section__eyebrow" style={{ color: "#d4af7a" }}>Our Promise</p>
           <h2>Crafted with Intention.<br />Worn with Grace.</h2>
-          <p>Every piece is ethically sourced, hallmark certified, and made to last a lifetime.</p>
+          <p>Every piece is ethically sourced and made to last a lifetime.</p>
           <button className="btn btn--primary" onClick={() => navigate('/about')}>
             Our Story
           </button>
