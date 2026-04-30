@@ -50,18 +50,6 @@ export default function Navbar() {
 
   return (
     <>
-      <style>{`
-        @media (min-width: 769px) {
-          .mobile-admin-link {
-            display: none !important;
-          }
-        }
-      `}</style>
-      <div 
-        className={`menu-overlay ${menuOpen ? 'menu-overlay--open' : ''}`} 
-        onClick={() => setMenuOpen(false)} 
-      />
-
       <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''} ${menuOpen ? 'menu-open' : ''}`}>
         <div className="navbar__inner">
 
@@ -190,14 +178,6 @@ export default function Navbar() {
 
             {/* NAV LINKS & MOBILE SEARCH */}
             <ul className={`navbar__links ${menuOpen ? "navbar__links--open" : ""}`}>
-              <button 
-                className="mobile-close-btn" 
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close Menu"
-              >
-                ×
-              </button>
-
               <li className="mobile-search" style={{ width: '100%', padding: '0 1rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
                 <form onSubmit={(e) => e.preventDefault()} style={{
                   display: 'flex', alignItems: 'center', border: '1px solid var(--charcoal)',
@@ -249,24 +229,6 @@ export default function Navbar() {
                   <Link to={l.path} onClick={() => setMenuOpen(false)}>{l.label}</Link>
                 </li>
               ))}
-              {userInfo && userInfo.isAdmin && (
-                <>
-                  <li className="mobile-admin-link" style={{ 
-                    marginTop: '1rem', 
-                    paddingTop: '1rem', 
-                    borderTop: '1px solid var(--border)', 
-                    color: 'var(--gold-dark)', 
-                    fontFamily: 'var(--ff-display)',
-                    fontSize: '0.9rem',
-                    letterSpacing: '0.05em'
-                  }}>
-                    VIP ADMIN
-                  </li>
-                  <li className="mobile-admin-link"><Link to="/admin/productlist" onClick={() => setMenuOpen(false)}>Manage Products</Link></li>
-                  <li className="mobile-admin-link"><Link to="/admin/orderlist" onClick={() => setMenuOpen(false)}>Manage Orders</Link></li>
-                  <li className="mobile-admin-link"><Link to="/admin/userlist" onClick={() => setMenuOpen(false)}>Manage Users</Link></li>
-                </>
-              )}
             </ul>
 
             {/* ICONS */}
@@ -297,8 +259,9 @@ export default function Navbar() {
                   </svg>
                 </Link>
               )}
+              {/* THE SECRET ADMIN MENU */}
               {userInfo && userInfo.isAdmin && (
-                <div className="navbar__admin hide-on-mobile" style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
+                <div className="navbar__admin" style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderLeft: '2px solid #d4af7a', paddingLeft: '1rem', marginLeft: '1rem' }}>
                   <span style={{ color: '#d4af7a', fontFamily: 'var(--ff-display)', fontSize: '1.2rem' }}> VIP </span>
     
                   <Link to="/admin/productlist" style={{ color: 'var(--charcoal)', textDecoration: 'none', fontWeight: 'bold' }}>
@@ -314,14 +277,6 @@ export default function Navbar() {
                   </Link>
                 </div>
               )}
-
-              {/* WISHLIST (FAVORITES) */}
-              <button className="icon-btn" aria-label="Wishlist" onClick={() => navigate('/wishlist')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="1.5">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </button>
 
               {/* CART */}
               <button className="icon-btn" aria-label="Cart" onClick={() => setCartOpen(true)}>
@@ -343,6 +298,12 @@ export default function Navbar() {
 
         </div>
       </nav>
+            {menuOpen && (
+              <div 
+                className="nav-overlay"
+                onClick={() => setMenuOpen(false)}
+              />
+            )}
       <Cart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
