@@ -40,7 +40,6 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
@@ -59,49 +58,47 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
-router.post('/send-otp', async (req, res) => {
-  const { phoneNumber } = req.body;
 
-  if (!phoneNumber || phoneNumber.length < 10) {
-    return res.status(400).json({ message: 'Please enter a valid 10-digit phone number' });
+router.post('/send-otp', async (req, res) => {
+  const phoneRaw = req.body.phone || req.body.phoneNumber; 
+
+  if (!phoneRaw || phoneRaw.length < 10) {
+    return res.status(400).json({ message: 'Please enter a valid phone number' });
   }
+  const cleanPhoneForSMS = phoneRaw.replace('+91', '').trim();
 
   try {
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    await Otp.deleteMany({ phoneNumber });
-    await Otp.create({ phoneNumber, otp: generatedOtp });
-    await axios.get('https://www.fast2sms.com/dev/bulkV2', {
-      params: {
-        authorization: process.env.FAST2SMS_API_KEY,
-        variables_values: generatedOtp,
-        route: 'otp',
-        numbers: phoneNumber,
-      },
+    await Otp.deleteMany({ phoneNumber: phoneRaw });
+    await Otp.create({ phoneNumber: phoneRaw, otp: generatedOtp });
+    await axios.post('https://www.fast2sms.com/dev/bulkV2', {
+      variables_values: generatedOtp,
+      route: 'otp',
+      numbers: cleanPhoneForSMS, 
+    }, {
+      headers: {
+        authorization: process.env.FAST2SMS_API_KEY
+      }
     });
 
     res.json({ message: 'OTP sent successfully!' });
   } catch (error) {
-    console.error("OTP SEND ERROR:", error);
+    console.error("OTP SEND ERROR:", error.response?.data || error.message);
     res.status(500).json({ message: 'Failed to send OTP. Please try again later.' });
   }
 });
-
 router.post('/verify-otp', async (req, res) => {
-  const { phoneNumber, otp } = req.body;
-
+  const phoneRaw = req.body.phone || req.body.phoneNumber;
+  const { otp } = req.body;
   try {
-    const validOtp = await Otp.findOne({ phoneNumber, otp });
+    const validOtp = await Otp.findOne({ phoneNumber: phoneRaw, otp });
 
     if (!validOtp) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
-    }
-    let user = await User.findOne({ phoneNumber });
-
+    } 
+    const user = await User.findOne({ phoneNumber: phoneRaw });
     if (!user) {
-      user = await User.create({
-        name: `User_${phoneNumber.substring(6)}`,
-        phoneNumber: phoneNumber,
-      });
+      return res.status(404).json({ message: 'Account not found. Please create an account first.' });
     }
     await Otp.deleteOne({ _id: validOtp._id });
     generateToken(res, user._id); 
@@ -118,6 +115,45 @@ router.post('/verify-otp', async (req, res) => {
     res.status(500).json({ message: 'Verification failed' });
   }
 });
+router.post('/register-otp', async (req, res) => {
+  const phoneRaw = req.body.phone || req.body.phoneNumber;
+  const { name, email, otp } = req.body;
+  try {
+    const validOtp = await Otp.findOne({ phoneNumber: phoneRaw, otp });
+    if (!validOtp) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+    const userExists = await User.findOne({ phoneNumber: phoneRaw });
+    if (userExists) {
+      return res.status(400).json({ message: 'Number is already registered. Please sign in.' });
+    }
+    if (email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+         return res.status(400).json({ message: 'Email is already in use.' });
+      }
+    }
+    const user = await User.create({
+      name: name,
+      email: email,
+      phoneNumber: phoneRaw,
+      isAdmin: false,
+    });
+    await Otp.deleteOne({ _id: validOtp._id });
+    generateToken(res, user._id); 
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      isAdmin: user.isAdmin,
+    });
+  } catch (error) {
+    console.error("OTP REGISTER ERROR:", error);
+    res.status(500).json({ message: 'Registration failed' });
+  }
+});
 
 router.get('/profile', protect, async (req, res) => {
   const user = await User.findById(req.user._id);
@@ -127,6 +163,7 @@ router.get('/profile', protect, async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phoneNumber: user.phoneNumber,
       isAdmin: user.isAdmin,
     });
   } else {

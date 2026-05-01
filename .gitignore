@@ -37,3 +37,4 @@ Thumbs.db
 *.sw?
 /backend/uploads/*
 !/backend/uploads/.gitkeep
+/frontend/src/config.js

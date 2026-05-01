@@ -52,7 +52,8 @@ export default function Navbar() {
     <>
       <style>{`
         @media (min-width: 769px) {
-          .mobile-admin-link {
+          .mobile-admin-link,
+          .mobile-account-link {
             display: none !important;
           }
         }
@@ -249,6 +250,43 @@ export default function Navbar() {
                   <Link to={l.path} onClick={() => setMenuOpen(false)}>{l.label}</Link>
                 </li>
               ))}
+
+              {/* OBILE USER DASHBOARD (Visible only in hamburger) */}
+              {userInfo && (
+                <>
+                  <li className="mobile-account-link" style={{ 
+                    marginTop: '1rem', 
+                    paddingTop: '1rem', 
+                    borderTop: '1px solid var(--border)', 
+                    color: 'var(--gold-dark)', 
+                    fontFamily: 'var(--ff-display)',
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.05em'
+                  }}>
+                    MY ACCOUNT
+                  </li>
+                  <li className="mobile-account-link">
+                    <Link to="/profile" onClick={() => setMenuOpen(false)}>Hi, {userInfo.name}</Link>
+                  </li>
+                  <li className="mobile-account-link">
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }} 
+                      style={{
+                        background: 'none', border: 'none', padding: 0, 
+                        fontFamily: 'inherit', fontSize: 'inherit', color: 'var(--text)', 
+                        cursor: 'pointer', textAlign: 'left', width: '100%'
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </>
+              )}
+
+              {/* MOBILE ADMIN DASHBOARD */}
               {userInfo && userInfo.isAdmin && (
                 <>
                   <li className="mobile-admin-link" style={{ 
@@ -272,14 +310,14 @@ export default function Navbar() {
             {/* ICONS */}
             <div className="navbar__actions">
 
-              {/* LOGIN / USER */}
+              {/* LOGIN / USER (Desktop only styling remains) */}
               {userInfo ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Link to="/profile" style={{ fontSize: '0.78rem', color: 'var(--gold)',
                     fontFamily: 'var(--ff-body)', letterSpacing: '0.05em' }} className="hide-on-mobile">
                     Hi, {userInfo.name}
                   </Link>
-                  <button className="icon-btn" onClick={handleLogout} title="Logout">
+                  <button className="icon-btn hide-on-mobile" onClick={handleLogout} title="Logout">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" strokeWidth="1.5">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

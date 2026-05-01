@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import axios from 'axios';
 import '../App.css';
 
 export default function LoginScreen() {
@@ -10,7 +11,6 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-
   const otpRefs = useRef([]);
   const navigate = useNavigate();
   const { userInfo, setCredentials } = useAuth();
@@ -28,12 +28,16 @@ export default function LoginScreen() {
     setError('');
     if (phone.length < 10) return setError('Please enter a valid 10-digit mobile number');
     setLoading(true);
-    // TODO: await axios.post('/api/users/send-otp', { phone: '+91' + phone });
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setStep(2);
-    setResendTimer(30);
-    setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    try {
+      await axios.post('/api/users/send-otp', { phoneNumber: phone });
+      setStep(2);
+      setResendTimer(30);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOtpChange = (val, idx) => {
@@ -57,21 +61,22 @@ export default function LoginScreen() {
     e.preventDefault();
     setError('');
     if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP');
+    
     setLoading(true);
-    // TODO: const { data } = await axios.post('/api/users/verify-otp', { phone: '+91' + phone, otp: otp.join('') });
-    // TODO: setCredentials(data); navigate('/');
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setError('Backend not connected yet — OTP flow ready to wire up ✓');
-  };
-
-  const handleResend = () => {
-    if (resendTimer > 0) return;
-    setOtp(['', '', '', '', '', '']);
-    setError('');
-    setResendTimer(30);
-    otpRefs.current[0]?.focus();
-    // TODO: axios.post('/api/users/send-otp', { phone: '+91' + phone });
+    try {
+      const { data } = await axios.post('/api/users/verify-otp', { 
+        phoneNumber: phone, 
+        otp: otp.join('') 
+      });
+      setCredentials(data); 
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid OTP. Please check and try again.');
+      setOtp(['', '', '', '', '', '']); 
+      otpRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -174,6 +179,19 @@ export default function LoginScreen() {
         {/* RIGHT FORM */}
         <div className="login-form-panel">
 
+
+
+
+
+
+
+
+
+
+
+
+
+
           {/* Mobile hero */}
           <div className="login-mobile-hero">
             <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=80" alt="Jewellery" />
@@ -184,6 +202,13 @@ export default function LoginScreen() {
           </div>
 
           <div className="login-form-inner">
+
+
+
+
+
+
+
 
             {/* Step bar */}
             <div className="step-bar">
@@ -248,12 +273,58 @@ export default function LoginScreen() {
                       />
                     ))}
                   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
                 <div className="resend-row">
                   {resendTimer > 0
                     ? <span>Resend OTP in <strong>{resendTimer}s</strong></span>
                     : <span>Didn't receive it? <button type="button" className="resend-btn" onClick={handleResend}>Resend OTP</button></span>
                   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
                 <button type="submit" className="btn btn--primary"
                   disabled={loading || otp.join('').length < 6}
@@ -265,10 +336,29 @@ export default function LoginScreen() {
 
             <p className="login-footer-note">
               By signing in, you agree to our <span>Terms of Service</span> and <span>Privacy Policy</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </p>
 
           </div>
         </div>
+
       </div>
     </>
   );

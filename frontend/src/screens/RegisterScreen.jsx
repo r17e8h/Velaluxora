@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import axios from 'axios';
 import '../App.css';
 
 export default function RegisterScreen() {
   const [step, setStep] = useState(1); // 1 = details, 2 = otp
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
@@ -26,16 +28,26 @@ export default function RegisterScreen() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
+    console.log("1. Button was clicked! Phone number is:", phone); 
     setError('');
     if (!name.trim()) return setError('Please enter your full name');
     if (phone.length < 10) return setError('Please enter a valid 10-digit mobile number');
     setLoading(true);
-    // TODO: await axios.post('/api/users/send-otp', { phone: '+91' + phone });
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setStep(2);
-    setResendTimer(30);
-    setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    try {
+      await axios.post('/api/users/send-otp', { 
+        name: name, 
+        email: email, 
+        phoneNumber: phone 
+      });
+      
+      setStep(2);
+      setResendTimer(30);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOtpChange = (val, idx) => {
@@ -60,20 +72,38 @@ export default function RegisterScreen() {
     setError('');
     if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP');
     setLoading(true);
-    // TODO: const { data } = await axios.post('/api/users/register-otp', { name, phone: '+91' + phone, otp: otp.join('') });
-    // TODO: setCredentials(data); navigate('/');
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setError('Backend not connected yet — OTP flow ready to wire up ✓');
+    try {
+      const { data } = await axios.post('/api/users/verify-otp', { 
+        phoneNumber: phone, 
+        otp: otp.join('') 
+      });
+      setCredentials(data); 
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid OTP. Please check and try again.');
+      setOtp(['', '', '', '', '', '']);
+      otpRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendTimer > 0) return;
     setOtp(['', '', '', '', '', '']);
     setError('');
     setResendTimer(30);
     otpRefs.current[0]?.focus();
-    // TODO: axios.post('/api/users/send-otp', { phone: '+91' + phone });
+    
+    try {
+      await axios.post('/api/users/send-otp', { 
+        name: name, 
+        email: email, 
+        phoneNumber: phone 
+      });
+    } catch (err) {
+      setError('Failed to resend OTP.');
+    }
   };
 
   return (
@@ -94,7 +124,6 @@ export default function RegisterScreen() {
         .reg-quote-line { width: 40px; height: 1px; background: var(--gold); margin-bottom: 1.5rem; }
         .reg-quote-main { font-family: var(--ff-display); font-size: clamp(1.5rem,2.5vw,2.2rem); font-weight: 300; color: white; line-height: 1.3; margin-bottom: 1rem; }
         .reg-quote-sub { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; }
-
         .reg-form-panel {
           display: flex; flex-direction: column; justify-content: center;
           align-items: center; padding: clamp(2rem,6vw,5rem);
@@ -174,7 +203,7 @@ export default function RegisterScreen() {
 
         {/* LEFT IMAGE — desktop only */}
         <div className="reg-image-panel">
-          <img src="https://images.unsplash.com/photo-1573408301185-9519f94ae9b2?w=900&q=80" alt="Jewellery" />
+          <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80" alt="Jewellery" />
           <div className="reg-image-overlay">
             <div className="reg-quote-line" />
             <p className="reg-quote-main">"Begin Your<br />Golden Journey."</p>
@@ -187,7 +216,7 @@ export default function RegisterScreen() {
 
           {/* Mobile hero */}
           <div className="reg-mobile-hero">
-            <img src="https://images.unsplash.com/photo-1573408301185-9519f94ae9b2?w=900&q=80" alt="Jewellery" />
+            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80" alt="Jewellery" />
             <div className="reg-mobile-hero-overlay">
               <p>Join Us</p>
               <p>"Begin Your Golden Journey."</p>
@@ -221,6 +250,11 @@ export default function RegisterScreen() {
                   <label className="reg-label">Full Name</label>
                   <input className="reg-input" type="text" placeholder="Priya Sharma"
                     value={name} required onChange={(e) => setName(e.target.value)} />
+                </div>
+                <div className="reg-field">
+                  <label className="reg-label">Email Address</label>
+                  <input className="reg-input" type="email" placeholder="priya@example.com"
+                    value={email} required onChange={(e) => setEmail(e.target.value)} />
                 </div>
                 <div className="reg-field">
                   <label className="reg-label">Mobile Number</label>
