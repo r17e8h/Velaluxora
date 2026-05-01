@@ -1,7 +1,9 @@
 import express from 'express';
+import axios from 'axios';
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import Otp from '../models/otpModel.js';
 
 const router = express.Router();
 
@@ -57,16 +59,48 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/send-otp', async (req, res) => {
+  const phoneRaw = req.body.phone || req.body.phoneNumber; 
+
+  if (!phoneRaw || phoneRaw.length < 10) {
+    return res.status(400).json({ message: 'Please enter a valid phone number' });
+  }
+  const cleanPhoneForSMS = phoneRaw.replace('+91', '').trim();
+
+  try {
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    await Otp.deleteMany({ phoneNumber: phoneRaw });
+    await Otp.create({ phoneNumber: phoneRaw, otp: generatedOtp });
+    await axios.post('https://www.fast2sms.com/dev/bulkV2', {
+      variables_values: generatedOtp,
+      route: 'otp',
+      numbers: cleanPhoneForSMS, 
+    }, {
+      headers: {
+        authorization: process.env.FAST2SMS_API_KEY
+      }
+    });
+
+    res.json({ message: 'OTP sent successfully!' });
+  } catch (error) {
+    console.error("OTP SEND ERROR:", error.response?.data || error.message);
+    res.status(500).json({ message: 'Failed to send OTP. Please try again later.' });
+  }
+});
 router.post('/verify-otp', async (req, res) => {
   const phoneRaw = req.body.phone || req.body.phoneNumber;
+  const { otp } = req.body;
   try {
-    if (!phoneRaw) {
-      return res.status(400).json({ message: 'Phone number is required' });
-    }
+    const validOtp = await Otp.findOne({ phoneNumber: phoneRaw, otp });
+
+    if (!validOtp) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    } 
     const user = await User.findOne({ phoneNumber: phoneRaw });
     if (!user) {
       return res.status(404).json({ message: 'Account not found. Please create an account first.' });
     }
+    await Otp.deleteOne({ _id: validOtp._id });
     generateToken(res, user._id); 
 
     res.json({
@@ -77,16 +111,17 @@ router.post('/verify-otp', async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } catch (error) {
-    console.error("FIREBASE LOGIN VERIFY ERROR:", error);
-    res.status(500).json({ message: 'Verification failed on server' });
+    console.error("OTP VERIFY ERROR:", error);
+    res.status(500).json({ message: 'Verification failed' });
   }
 });
 router.post('/register-otp', async (req, res) => {
   const phoneRaw = req.body.phone || req.body.phoneNumber;
-  const { name, email } = req.body;
+  const { name, email, otp } = req.body;
   try {
-    if (!phoneRaw || !name) {
-      return res.status(400).json({ message: 'Name and phone number are required' });
+    const validOtp = await Otp.findOne({ phoneNumber: phoneRaw, otp });
+    if (!validOtp) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
     const userExists = await User.findOne({ phoneNumber: phoneRaw });
     if (userExists) {
@@ -104,6 +139,7 @@ router.post('/register-otp', async (req, res) => {
       phoneNumber: phoneRaw,
       isAdmin: false,
     });
+    await Otp.deleteOne({ _id: validOtp._id });
     generateToken(res, user._id); 
 
     res.status(201).json({
@@ -114,8 +150,8 @@ router.post('/register-otp', async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } catch (error) {
-    console.error("FIREBASE REGISTER ERROR:", error);
-    res.status(500).json({ message: 'Registration failed on server' });
+    console.error("OTP REGISTER ERROR:", error);
+    res.status(500).json({ message: 'Registration failed' });
   }
 });
 

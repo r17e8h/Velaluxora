@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { auth } from '../firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import axios from 'axios';
 import '../App.css';
 
@@ -13,7 +11,6 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-  const [confirmationResult, setConfirmationResult] = useState(null);
   const otpRefs = useRef([]);
   const navigate = useNavigate();
   const { userInfo, setCredentials } = useAuth();
@@ -26,40 +23,18 @@ export default function LoginScreen() {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  const setupRecaptcha = () => {
-    if (!document.getElementById('recaptcha-container')) return;
-    if (!window.recaptchaVerifier) {
-      auth.settings.appVerificationDisabledForTesting = false;
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-        }
-      });
-    }
-  };
-
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
     if (phone.length < 10) return setError('Please enter a valid 10-digit mobile number');
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedPhone = '+91' + phone;
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
+      await axios.post('/api/users/send-otp', { phoneNumber: phone });
       setStep(2);
       setResendTimer(30);
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (err) {
-      console.error("Firebase SMS Error:", err);
-      setError('Failed to send OTP. Please try again.');
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(function(widgetId) {
-          window.grecaptcha.reset(widgetId);
-        });
-      }
+      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -85,40 +60,22 @@ export default function LoginScreen() {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setError('');
-    if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP'); 
+    if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP');
+    
     setLoading(true);
     try {
-      await confirmationResult.confirm(otp.join(''));
       const { data } = await axios.post('/api/users/verify-otp', { 
-        phoneNumber: phone 
+        phoneNumber: phone, 
+        otp: otp.join('') 
       });
       setCredentials(data); 
       navigate('/');
     } catch (err) {
-      console.error("Verification Error:", err);
-      setError('Invalid OTP. Please check and try again.');
+      setError(err.response?.data?.message || 'Invalid OTP. Please check and try again.');
       setOtp(['', '', '', '', '', '']); 
       otpRefs.current[0]?.focus();
     } finally {
       setLoading(false);
-    }
-  };
-  const handleResend = async () => {
-    if (resendTimer > 0) return;
-    setOtp(['', '', '', '', '', '']);
-    setError('');
-    setResendTimer(30);
-    otpRefs.current[0]?.focus();
-    
-    try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedPhone = '+91' + phone;
-
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
-    } catch (err) {
-      setError('Failed to resend OTP.');
     }
   };
 
@@ -222,6 +179,19 @@ export default function LoginScreen() {
         {/* RIGHT FORM */}
         <div className="login-form-panel">
 
+
+
+
+
+
+
+
+
+
+
+
+
+
           {/* Mobile hero */}
           <div className="login-mobile-hero">
             <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=80" alt="Jewellery" />
@@ -232,6 +202,13 @@ export default function LoginScreen() {
           </div>
 
           <div className="login-form-inner">
+
+
+
+
+
+
+
 
             {/* Step bar */}
             <div className="step-bar">
@@ -296,12 +273,58 @@ export default function LoginScreen() {
                       />
                     ))}
                   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
                 <div className="resend-row">
                   {resendTimer > 0
                     ? <span>Resend OTP in <strong>{resendTimer}s</strong></span>
                     : <span>Didn't receive it? <button type="button" className="resend-btn" onClick={handleResend}>Resend OTP</button></span>
                   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
                 <button type="submit" className="btn btn--primary"
                   disabled={loading || otp.join('').length < 6}
@@ -313,12 +336,30 @@ export default function LoginScreen() {
 
             <p className="login-footer-note">
               By signing in, you agree to our <span>Terms of Service</span> and <span>Privacy Policy</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </p>
 
           </div>
         </div>
+
       </div>
-      <div id="recaptcha-container" style={{ position: 'fixed', bottom: 0, right: 0, zIndex: 9999 }}></div>
     </>
   );
 }

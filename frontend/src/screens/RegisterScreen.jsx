@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import axios from 'axios';
-import { auth } from '../firebase'; 
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import '../App.css';
 
 export default function RegisterScreen() {
@@ -15,7 +13,6 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const otpRefs = useRef([]);
   const navigate = useNavigate();
@@ -28,42 +25,26 @@ export default function RegisterScreen() {
     const t = setTimeout(() => setResendTimer(r => r - 1), 1000);
     return () => clearTimeout(t);
   }, [resendTimer]);
-  const setupRecaptcha = () => {
-    if (!document.getElementById('recaptcha-container')) return;
-    if (!window.recaptchaVerifier) {
-      auth.settings.appVerificationDisabledForTesting = false;
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-        }
-      });
-    }
-  };
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
+    console.log("1. Button was clicked! Phone number is:", phone); 
     setError('');
     if (!name.trim()) return setError('Please enter your full name');
     if (phone.length < 10) return setError('Please enter a valid 10-digit mobile number');
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedPhone = '+91' + phone;
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
+      await axios.post('/api/users/send-otp', { 
+        name: name, 
+        email: email, 
+        phoneNumber: phone 
+      });
       
       setStep(2);
       setResendTimer(30);
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (err) {
-      console.error("Firebase SMS Error:", err);
-      setError('Failed to send OTP. Please try again.');
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(function(widgetId) {
-          window.grecaptcha.reset(widgetId);
-        });
-      }
+      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -92,17 +73,13 @@ export default function RegisterScreen() {
     if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP');
     setLoading(true);
     try {
-      await confirmationResult.confirm(otp.join(''));
-      const { data } = await axios.post('/api/users/register-otp', { 
-        name, 
-        email, 
-        phoneNumber: phone 
+      const { data } = await axios.post('/api/users/verify-otp', { 
+        phoneNumber: phone, 
+        otp: otp.join('') 
       });
-      
       setCredentials(data); 
       navigate('/');
     } catch (err) {
-      console.error("Verification Error:", err);
       setError(err.response?.data?.message || 'Invalid OTP. Please check and try again.');
       setOtp(['', '', '', '', '', '']);
       otpRefs.current[0]?.focus();
@@ -119,12 +96,11 @@ export default function RegisterScreen() {
     otpRefs.current[0]?.focus();
     
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedPhone = '+91' + phone;
-
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
+      await axios.post('/api/users/send-otp', { 
+        name: name, 
+        email: email, 
+        phoneNumber: phone 
+      });
     } catch (err) {
       setError('Failed to resend OTP.');
     }
@@ -148,7 +124,6 @@ export default function RegisterScreen() {
         .reg-quote-line { width: 40px; height: 1px; background: var(--gold); margin-bottom: 1.5rem; }
         .reg-quote-main { font-family: var(--ff-display); font-size: clamp(1.5rem,2.5vw,2.2rem); font-weight: 300; color: white; line-height: 1.3; margin-bottom: 1rem; }
         .reg-quote-sub { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; }
-
         .reg-form-panel {
           display: flex; flex-direction: column; justify-content: center;
           align-items: center; padding: clamp(2rem,6vw,5rem);
@@ -228,10 +203,7 @@ export default function RegisterScreen() {
 
         {/* LEFT IMAGE — desktop only */}
         <div className="reg-image-panel">
-          <img 
-            src="https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?w=1600&q=80" 
-            alt="Luxury Jewellery" 
-          />
+          <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80" alt="Jewellery" />
           <div className="reg-image-overlay">
             <div className="reg-quote-line" />
             <p className="reg-quote-main">"Begin Your<br />Golden Journey."</p>
@@ -244,10 +216,7 @@ export default function RegisterScreen() {
 
           {/* Mobile hero */}
           <div className="reg-mobile-hero">
-            <img 
-            src="https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?w=1600&q=80" 
-            alt="Luxury Jewellery" 
-          />
+            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80" alt="Jewellery" />
             <div className="reg-mobile-hero-overlay">
               <p>Join Us</p>
               <p>"Begin Your Golden Journey."</p>
@@ -360,7 +329,6 @@ export default function RegisterScreen() {
           </div>
         </div>
       </div>
-      <div id="recaptcha-container" style={{ position: 'fixed', bottom: 0, right: 0, zIndex: 9999 }}></div>
     </>
   );
 }
